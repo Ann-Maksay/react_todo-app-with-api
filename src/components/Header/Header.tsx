@@ -8,6 +8,8 @@ type Props = {
   title: string;
   onTitleChange: Dispatch<SetStateAction<string>>;
   onSubmit: (title: string) => void;
+  onToggleAll: () => void;
+  focusHeader: boolean;
 };
 
 export const Header: React.FC<Props> = ({
@@ -17,6 +19,8 @@ export const Header: React.FC<Props> = ({
   title,
   onTitleChange,
   onSubmit,
+  onToggleAll,
+  focusHeader,
 }) => {
   const createTodoInput = useRef<HTMLInputElement>(null);
 
@@ -27,10 +31,10 @@ export const Header: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    if (createTodoInput.current) {
-      createTodoInput.current.focus();
+    if (focusHeader) {
+      createTodoInput.current?.focus();
     }
-  }, [isLoading]);
+  }, [focusHeader]);
 
   return (
     <header className="todoapp__header">
@@ -38,9 +42,10 @@ export const Header: React.FC<Props> = ({
         <button
           type="button"
           className={cn('todoapp__toggle-all', {
-            active: !!uncompletedTodosAmount,
+            active: !uncompletedTodosAmount,
           })}
           data-cy="ToggleAllButton"
+          onClick={onToggleAll}
         />
       )}
 

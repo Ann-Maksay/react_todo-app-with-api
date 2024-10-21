@@ -1,6 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Header, Footer, Notification, TodoList } from './components';
-import { USER_ID, getTodos, addTodo, deleteTodo } from './api/todos';
+import {
+  USER_ID,
+  getTodos,
+  addTodo,
+  deleteTodo,
+  updateTodo,
+} from './api/todos';
 import { FilterOption, Todo, Error } from './types';
 
 export const App: React.FC = () => {
@@ -13,6 +19,8 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
+  const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
+  const [focusHeader, setFocusHeader] = useState(true);
 
   const todosAmount = useMemo(() => todos.length, [todos]);
   const uncompletedTodosAmount = useMemo(
@@ -44,6 +52,7 @@ export const App: React.FC = () => {
     setTempTodo({ ...newTodo, id: 0 });
 
     setIsLoading(true);
+    setFocusHeader(false);
 
     addTodo(newTodo)
       .then(response => {
@@ -56,23 +65,32 @@ export const App: React.FC = () => {
       .finally(() => {
         setIsLoading(false);
         setTempTodo(null);
+        setFocusHeader(true);
       });
   };
 
   const handleDeleteTodo = (id: number) => {
     setIsLoading(true);
     setLoadingTodoIds(current => [...current, id]);
+    setFocusHeader(false);
 
     deleteTodo(id)
-      .then(() =>
-        setTodos(currentTodos => currentTodos.filter(todo => todo.id !== id)),
-      )
+      .then(() => {
+        setTodos(currentTodos => currentTodos.filter(todo => todo.id !== id));
+
+        if (editingTodoId) {
+          setEditingTodoId(null);
+        }
+      })
       .catch(() => handleError(Error.DELETING_TODO))
       .finally(() => {
         setLoadingTodoIds(current =>
           current.filter(deletedId => deletedId !== id),
         );
         setIsLoading(false);
+        if (!editingTodoId) {
+          setFocusHeader(true);
+        }
       });
   };
 
@@ -88,9 +106,68 @@ export const App: React.FC = () => {
     completedIds.forEach(handleDeleteTodo);
   };
 
-  useEffect(() => {
-    handleResetError();
+  const handleUpdateTodo = (id: number, data: Partial<Todo>) => {
+    setIsLoading(true);
+    setLoadingTodoIds(currentIds => [...currentIds, id]);
 
+    updateTodo({ id, ...data })
+      .then(updatedTodo => {
+        setTodos(currentTodos =>
+          currentTodos.map(todo =>
+            todo.id === updatedTodo.id ? updatedTodo : todo,
+          ),
+        );
+
+        setEditingTodoId(null);
+      })
+      .catch(() => {
+        handleError(Error.UPDATING_TODO);
+        setTodos(currentTodos =>
+          currentTodos === todos ? currentTodos : todos,
+        );
+      })
+      .finally(() => {
+        setLoadingTodoIds(ids =>
+          ids.filter(loadingTodoId => loadingTodoId !== id),
+        );
+        setIsLoading(false);
+      });
+  };
+
+  const handleToggleStatus = (id: number, currentStatus: boolean) => {
+    handleUpdateTodo(id, { completed: !currentStatus });
+  };
+
+  const handleToggleAll = () => {
+    const isAllStatusSame =
+      todosAmount === uncompletedTodosAmount || !uncompletedTodosAmount;
+
+    todos.forEach(({ id, completed }) => {
+      const newStatus = isAllStatusSame ? !completed : true;
+
+      if (completed !== newStatus) {
+        handleUpdateTodo(id, { completed: newStatus });
+      }
+    });
+  };
+
+  const handleUpdateTitle = (todo: Todo, title: string) => {
+    if (!title.length) {
+      handleDeleteTodo(todo.id);
+
+      return;
+    }
+
+    if (todo.title === title) {
+      setEditingTodoId(null);
+
+      return;
+    }
+
+    handleUpdateTodo(todo.id, { title: title });
+  };
+
+  useEffect(() => {
     getTodos()
       .then(currentTodos => {
         setTodos(currentTodos);
@@ -112,27 +189,32 @@ export const App: React.FC = () => {
           title={todoInputValue}
           onTitleChange={setTodoInputValue}
           onSubmit={handleSubmitTodo}
+          onToggleAll={handleToggleAll}
+          focusHeader={focusHeader}
+        />
+
+        <TodoList
+          todos={todos}
+          filterOption={filterOption}
+          tempTodo={tempTodo}
+          onDelete={handleDeleteTodo}
+          loadingTodoIds={loadingTodoIds}
+          isNewTodoLoading={isLoading}
+          editingTodoId={editingTodoId}
+          onStartEditing={setEditingTodoId}
+          onToggleStatus={handleToggleStatus}
+          onUpdateTitle={handleUpdateTitle}
+          setEditingTodoId={setEditingTodoId}
         />
 
         {!!todosAmount && (
-          <>
-            <TodoList
-              todos={todos}
-              filterOption={filterOption}
-              tempTodo={tempTodo}
-              onDelete={handleDeleteTodo}
-              loadingTodoIds={loadingTodoIds}
-              isNewTodoLoading={isLoading}
-            />
-
-            <Footer
-              filterOption={filterOption}
-              setFilterOption={setFilterOption}
-              todosAmount={todosAmount}
-              uncompletedTodosAmount={uncompletedTodosAmount}
-              onDeleteCompleted={handleDeleteCompleted}
-            />
-          </>
+          <Footer
+            filterOption={filterOption}
+            setFilterOption={setFilterOption}
+            todosAmount={todosAmount}
+            uncompletedTodosAmount={uncompletedTodosAmount}
+            onDeleteCompleted={handleDeleteCompleted}
+          />
         )}
       </div>
 
