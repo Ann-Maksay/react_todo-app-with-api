@@ -120,12 +120,7 @@ export const App: React.FC = () => {
 
         setEditingTodoId(null);
       })
-      .catch(() => {
-        handleError(Error.UPDATING_TODO);
-        setTodos(currentTodos =>
-          currentTodos === todos ? currentTodos : todos,
-        );
-      })
+      .catch(() => handleError(Error.UPDATING_TODO))
       .finally(() => {
         setLoadingTodoIds(ids =>
           ids.filter(loadingTodoId => loadingTodoId !== id),
