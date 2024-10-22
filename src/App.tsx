@@ -8,10 +8,10 @@ import {
   updateTodo,
 } from './api/todos';
 import { FilterOption, Todo, Error } from './types';
+import { useError } from './hooks';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [error, setError] = useState<Error>(Error.DEFAULT);
   const [filterOption, setFilterOption] = useState<FilterOption>(
     FilterOption.all,
   );
@@ -21,20 +21,13 @@ export const App: React.FC = () => {
   const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
   const [focusHeader, setFocusHeader] = useState(true);
+  const { error, handleError, handleResetError } = useError();
 
   const todosAmount = useMemo(() => todos.length, [todos]);
   const uncompletedTodosAmount = useMemo(
     () => todos.reduce((amount, todo) => amount + (todo.completed ? 0 : 1), 0),
     [todos],
   );
-
-  const handleResetError = () => setError(Error.DEFAULT);
-
-  const handleError = (message: Error) => {
-    setError(message);
-
-    setTimeout(handleResetError, 3000);
-  };
 
   const handleSubmitTodo = (title: string) => {
     if (!title) {
@@ -170,6 +163,7 @@ export const App: React.FC = () => {
       .catch(() => {
         handleError(Error.LOADING_TODOS);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

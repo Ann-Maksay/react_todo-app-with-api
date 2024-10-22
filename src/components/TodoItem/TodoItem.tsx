@@ -56,6 +56,7 @@ export const TodoItem: React.FC<Props> = ({
     return () => {
       document.removeEventListener('keyup', handleReverseUpdate);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditing]);
 
   return (
