@@ -1,16 +1,16 @@
-import { Dispatch, SetStateAction } from 'react';
+import { FC } from 'react';
 import cn from 'classnames';
 import { FilterOption } from '../../types';
 import { getFilterLink } from '../../utils';
 
 type Props = {
   filterOption: FilterOption;
-  onFilter: Dispatch<SetStateAction<FilterOption>>;
+  onFilter: (option: FilterOption) => void;
 };
 
 const filterOptionsArray = Object.values(FilterOption);
 
-export const Filter: React.FC<Props> = ({ filterOption, onFilter }) => {
+export const Filter: FC<Props> = ({ filterOption, onFilter }) => {
   return (
     <nav className="filter" data-cy="Filter">
       {filterOptionsArray.map(option => {

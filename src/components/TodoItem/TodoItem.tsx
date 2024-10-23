@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import { useEffect, useState, useRef } from 'react';
+import { FC, useEffect, useState, useRef } from 'react';
 import cn from 'classnames';
 import { Todo } from '../../types';
 
@@ -14,7 +14,7 @@ type Props = {
   setEditingTodoId?: (id: number | null) => void;
 };
 
-export const TodoItem: React.FC<Props> = ({
+export const TodoItem: FC<Props> = ({
   todo,
   isEditing,
   isLoading,

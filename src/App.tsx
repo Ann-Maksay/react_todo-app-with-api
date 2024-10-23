@@ -29,6 +29,16 @@ export const App: React.FC = () => {
     [todos],
   );
 
+  const handleGetTodos = () => {
+    getTodos()
+      .then(currentTodos => {
+        setTodos(currentTodos);
+      })
+      .catch(() => {
+        handleError(Error.LOADING_TODOS);
+      });
+  };
+
   const handleSubmitTodo = (title: string) => {
     if (!title) {
       handleError(Error.EMPTY_TITLE);
@@ -88,13 +98,9 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteCompleted = () => {
-    const completedIds = todos.reduce<number[]>((ids, todo) => {
-      if (todo.completed) {
-        ids.push(todo.id);
-      }
-
-      return ids;
-    }, []);
+    const completedIds = todos
+      .filter(todo => todo.completed)
+      .map(todo => todo.id);
 
     completedIds.forEach(handleDeleteTodo);
   };
@@ -156,13 +162,7 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    getTodos()
-      .then(currentTodos => {
-        setTodos(currentTodos);
-      })
-      .catch(() => {
-        handleError(Error.LOADING_TODOS);
-      });
+    handleGetTodos();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

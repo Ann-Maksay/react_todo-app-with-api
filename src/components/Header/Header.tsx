@@ -1,4 +1,4 @@
-import { useRef, useEffect, Dispatch, SetStateAction } from 'react';
+import { FC, useRef, useEffect } from 'react';
 import cn from 'classnames';
 
 type Props = {
@@ -6,13 +6,13 @@ type Props = {
   uncompletedTodosAmount: number;
   isLoading: boolean;
   title: string;
-  onTitleChange: Dispatch<SetStateAction<string>>;
+  onTitleChange: (title: string) => void;
   onSubmit: (title: string) => void;
   onToggleAll: () => void;
   focusHeader: boolean;
 };
 
-export const Header: React.FC<Props> = ({
+export const Header: FC<Props> = ({
   todosAmount,
   uncompletedTodosAmount,
   isLoading,

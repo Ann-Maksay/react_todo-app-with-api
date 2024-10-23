@@ -1,3 +1,4 @@
+import { FC } from 'react';
 import cn from 'classnames';
 import { Error } from '../../types';
 
@@ -6,7 +7,7 @@ type Props = {
   onReset: () => void;
 };
 
-export const Notification: React.FC<Props> = ({ error, onReset }) => {
+export const Notification: FC<Props> = ({ error, onReset }) => {
   return (
     <div
       data-cy="ErrorNotification"

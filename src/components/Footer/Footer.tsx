@@ -1,15 +1,15 @@
-import { Dispatch, SetStateAction } from 'react';
+import { FC } from 'react';
 import { FilterOption } from '../../types';
 import { Filter } from '../Filter/Filter';
 
 type Props = {
   filterOption: FilterOption;
-  setFilterOption: Dispatch<SetStateAction<FilterOption>>;
+  setFilterOption: (option: FilterOption) => void;
   todosAmount: number;
   uncompletedTodosAmount: number;
   onDeleteCompleted: () => void;
 };
-export const Footer: React.FC<Props> = ({
+export const Footer: FC<Props> = ({
   filterOption,
   setFilterOption,
   todosAmount,

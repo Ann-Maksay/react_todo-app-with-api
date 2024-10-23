@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { FC, useMemo } from 'react';
 import { Todo, FilterOption } from '../../types';
 import { getFilteredTodos } from '../../utils';
 import { TodoItem } from '../TodoItem/TodoItem';
@@ -17,7 +17,7 @@ type Props = {
   setEditingTodoId: (id: number | null) => void;
 };
 
-export const TodoList: React.FC<Props> = ({
+export const TodoList: FC<Props> = ({
   todos,
   filterOption,
   tempTodo,
